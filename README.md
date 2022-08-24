@@ -1,6 +1,8 @@
 # PDF-Version-of-any-Book
 
-Download any book in the pdf form 
+Download any book in the PDF format. 
+
+If there is NO PDF available then it will search for the Book in the EPUB format and then CONVERT it to PDF and then Download the Book.
 
 To Test it:
 
