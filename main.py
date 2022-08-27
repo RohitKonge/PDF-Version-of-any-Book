@@ -33,15 +33,15 @@ def epub_to_pdf(epub_filename: str, pdf_filename: str) -> None:  # Convert EPUB 
 
     os.remove(file_path_epub)
 
-def remove_unwanted_chars_from_list(char_list: T.List[str], item: str) -> str:
-    for char in char_list:
-        item = item.replace(char, "")
-    return item
 
 def remove_unwanted_characters(
     pdf_name: str,
-) -> str:  # Removes all the Characters that are not valid in a Name of a Pdf
-    return remove_unwanted_chars_from_list(list("/:?*<>|,.();"), pdf_name)
+) -> str:  # Removes all the Characters that are not valid
+    chars = list("/:?*<>|,.();")
+    result = pdf_name
+    for char in chars:
+        result = result.replace(char, "")
+    return result
 
 
 def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
@@ -779,48 +779,17 @@ def selenium_headless_downloader(website, download_link, extension):
 
     return download_complete_via_selenium
 
+
 def easy_search_for_book(a):
 
-    if ":" in book:
-        a = a.split(":")[0]
-    elif "?" in book:
-        a = a.split("?")[0]
-    elif ";" in book:
-        a = a.split(";")[0]
-    elif "*" in book:
-        a = a.split("*")[0]
-    elif "," in book:
-        a = a.split(",")[0]
-    elif "(" in book:
-        a = a.split("(")[0]
-    elif "|" in book:
-        a = a.split("|")[0]
-    elif "#" in book:
-        a = a.split("#")[0]
-    elif "[" in book:
-        a = a.split("[")[0]
-    elif "!" in book:
-        a = a.split("!")[0]
-    elif "@" in book:
-        a = a.split("@")[0]
-    elif "$" in book:
-        a = a.split("$")[0]
-    elif "%" in book:
-        a = a.split("%")[0]
-    elif "+" in book:
-        a = a.split("+")[0]
-    elif "=" in book:
-        a = a.split("=")[0]
-    elif "{" in book:
-        a = a.split("{")[0]
-    elif "<" in book:
-        a = a.split("<")[0]
+    separation_candidates = list(":?;*,(|#[!@$%+={<")
+    for char in separation_candidates:
+        if char in book:
+            a = a.split(char)[0]
+            return a
 
-    return a
-
-
-author = "David Sargent"
-book = "Living in the Light: A guide to personal transformation"
+book = input("Enter book name : ")
+author = input("Enter book author : ")
 
 characters_to_strip = " .,;:/?!#*&^-}_{~`@$%)[](<>|+="
 
