@@ -1,8 +1,8 @@
-download
-numpy
-pymupdf
-pandas
-beautifulsoup4
-lxml
-selenium
-webdriver-manager
+pip install download
+pip install numpy
+pip install pymupdf
+pip install pandas
+pip install beautifulsoup4
+pip install lxml
+pip install selenium
+pip install webdriver-manager
