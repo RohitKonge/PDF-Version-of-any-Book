@@ -1,8 +1,8 @@
 import fitz, os
 from pathlib import Path
-import requests, bs4, webbrowser  # Importing the Modules for Web-Scraping
-import pandas as pd  # Importing the Module for DataFrames
-from download import download  # Importing the Module for downloading PDF
+import requests, bs4, webbrowser                        # Importing the Modules for Web-Scraping
+import pandas as pd                                     # Importing the Module for DataFrames
+from download import download                           # Importing the Module for downloading PDF
 import pandas as pd, numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,8 +12,9 @@ import os
 from os.path import exists
 import typing as T
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
 
-def epub_to_pdf(epub_filename: str, pdf_filename: str) -> None:  # Convert EPUB to PDF
+def epub_to_pdf(epub_filename: str, pdf_filename: str) -> None:                 # Convert EPUB to PDF
 
     downloads_path = str(Path.home() / "Downloads")
 
@@ -33,59 +34,53 @@ def epub_to_pdf(epub_filename: str, pdf_filename: str) -> None:  # Convert EPUB 
 
     os.remove(file_path_epub)
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
 
-def remove_unwanted_characters(
-    pdf_name: str,
-) -> str:  # Removes all the Characters that are not valid
+def remove_unwanted_characters(pdf_name: str,) -> str:              # Removes all the Characters that are not valid
     chars = list("/:?*<>|,.();")
     result = pdf_name
     for char in chars:
         result = result.replace(char, "")
     return result
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------       LIBGEN                -----------------------------------------------------------
+
 
 def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
-    author = author_searched_by_user  # Name of the Author
+    author = author_searched_by_user                        # Name of the Author
 
-    to_search = book_searched_by_user  # Name of the Book
+    to_search = book_searched_by_user                       # Name of the Book
 
-    pdf_title = to_search  # Title for the PDF to be downloaded
+    pdf_title = to_search                                   # Title for the PDF to be downloaded
 
-    to_search_online = to_search.replace(
-        " ", "+"
-    )  # Replacing whitespaces with '+' for the link, to search on libgen
+    to_search_online = to_search.replace(" ", "+")          # Replacing whitespaces with '+' for the link, to search on libgen
 
     link_to_search = f"https://libgen.is/search.php?req={to_search_online}&open=0&res=100&view=simple&phrase=1&column=title"
-    # The link to search on libgen
+                                                            # The link to search on libgen
 
     download_of_libgen_completed = False
 
     # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    list_of_dataframes = pd.read_html(
-        link_to_search
-    )  # Adds the Table of the Webpage in a List
+    list_of_dataframes = pd.read_html( link_to_search )     # Adds the Table of the Webpage in a List
 
-    table = list_of_dataframes[2]  # DataFrame of Books from the List
+    table = list_of_dataframes[2]                           # DataFrame of Books from the List
 
-    a = list(table.loc[0])  # Placing the Contents of the 1st Row in 'a'
+    a = list(table.loc[0])                                  # Placing the Contents of the 1st Row in 'a'
 
-    table.columns = a  # Changing the Names of the Columns
+    table.columns = a                                       # Changing the Names of the Columns
 
-    table.drop(0, axis=0, inplace=True)  # Dropping the 1st Row of the DataFrame
+    table.drop(0, axis=0, inplace=True)                     # Dropping the 1st Row of the DataFrame
 
-    table.reset_index(inplace=True)  # Making the Index start from 0 to 99
-    # So it has 100 books in the table
+    table.reset_index(inplace=True)                         # Making the Index start from 0 to 99
+                                                            # So it has 100 books in the table
 
-    table = table[
-        (table["Extension"] == extension)
-    ]  # Taking all the Books which are in the PDF format
+    table = table[ (table["Extension"] == extension) ]      # Taking all the Books which are in the PDF format
 
-    table.sort_values(
-        "Year", ascending=False, inplace=True
-    )  # Sorting the Books in the Descending, so the Latest Book is on
-    # the Top
+    table.sort_values( "Year", ascending=False, inplace=True )  # Sorting the Books in the Descending, so the Latest Book is on the Top
 
     # -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -101,24 +96,17 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
     # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    table_2 = table[
-        ["Author(s)", "Title"]
-    ]  # A new table which consists of the 'Name of the Author'
-    # and 'Title of the Books'
+    table_2 = table[ ["Author(s)", "Title"] ]   # A new table which consists of the 'Name of the Author' and 'Title of the Books'
 
-    index_number = 0  # For getting the 'Number of the Book' to be downloaded
-    # Here, 'Number of the Book' can be 1 or 2 or 3 or 4......
+    index_number = 0                            # For getting the 'Number of the Book' to be downloaded
+                                                # Here, 'Number of the Book' can be 1 or 2 or 3 or 4......
 
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    def check_for_author(
-        index_for_author,
-    ):  # For Matching the 'Name of the Author given by the user'
-        # and the 'Name of the Author of the Books from Libgen'
+    def check_for_author( index_for_author):    # For Matching the 'Name of the Author given by the user'
+                                                # and the 'Name of the Author of the Books from Libgen'
 
-        actual_author_name = table_2["Author(s)"][index_for_author].split(
-            " "
-        )  # Name of the Author of the Book from Libgen
+        actual_author_name = table_2["Author(s)"][index_for_author].split(" ")  # Name of the Author of the Book from Libgen
 
         result = (
             False  # Setting it to false so at the first match we can break the loop
@@ -314,6 +302,11 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
     return download_of_libgen_completed
 
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------            PDF-Drive             ----------------------------------------------------------
+
 
 def search_in_pdf_drive(author_searched_by_user, book_searched_by_user):
 
@@ -390,6 +383,10 @@ def search_in_pdf_drive(author_searched_by_user, book_searched_by_user):
         download_of_pdfdrive_completed = False
 
     return download_of_pdfdrive_completed
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------       Zlib             --------------------------------------------------------------------
 
 
 def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
@@ -579,6 +576,21 @@ def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
     return download_of_zlib_completed
 
 
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ------------------------------------------------       SELENIUM FOR PDF-DRIVE & ZLIB          ----------------------------------------------------------------
+
+
+def remove_unwanted_characters_for_pdfdrive(pdf_name: str,) -> str:              # Removes all the Characters that are not valid
+    chars = list("/:?*<>|,.();")
+    result = pdf_name
+    for char in chars:
+        result = result.replace(char, "_")
+    return result
+
+
+
 downloads_path = str(Path.home() / "Downloads")
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -722,7 +734,7 @@ def selenium_headless_downloader(website, download_link, extension):
 
         title_of_book = book_title_for_pdfdrive(download_link)
 
-        title_of_book = remove_unwanted_characters(title_of_book)
+        title_of_book = remove_unwanted_characters_for_pdfdrive(title_of_book)
 
         title_of_book = title_of_book + " ( PDFDrive )"
 
@@ -780,6 +792,10 @@ def selenium_headless_downloader(website, download_link, extension):
     return download_complete_via_selenium
 
 
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ------------------------------------------------    SEARCH A BOOK         ---------------------------------------------------------------------------
+
 def easy_search_for_book(a):
 
     separation_candidates = list(":?;*,(|#[!@$%+={<")
@@ -787,9 +803,14 @@ def easy_search_for_book(a):
         if char in book:
             a = a.split(char)[0]
             return a
+        
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-book = input("Enter book name : ")
-author = input("Enter book author : ")
+# book = input("Enter book name : ")
+# author = input("Enter book author : ")
+
+book   = "Moonwalking with Einstein: The Art and Science of Remembering Everything"
+author = "Joshua Foer"
 
 characters_to_strip = " .,;:/?!#*&^-}_{~`@$%)[](<>|+="
 
@@ -802,16 +823,16 @@ book = easy_search_for_book(book)
 
 extension_pdf = "pdf"
 
-if search_in_libgen(author, book, extension_pdf) == False:
+# if search_in_libgen(author, book, extension_pdf) == False:
 
-    if search_in_zlib(author, book, extension_pdf) == False:
+if search_in_zlib(author, book, extension_pdf) == False:
 
-        if search_in_pdf_drive(author, book) == False:
+    if search_in_pdf_drive(author, book) == False:
 
-            extension_epub = "epub"
+        extension_epub = "epub"
 
-            if search_in_libgen(author, book, extension_epub) == False:
+        if search_in_libgen(author, book, extension_epub) == False:
 
-                if search_in_zlib(author, book, extension_epub) == False:
+            if search_in_zlib(author, book, extension_epub) == False:
 
-                    print("The Book is not available in the Ebook Format")
+                print("The Book is not available in the Ebook Format")
