@@ -10,9 +10,10 @@ from selenium.webdriver.common.keys import Keys
 from download import download
 import os
 from os.path import exists
+import typing as T
 
 
-def epub_to_pdf(epub_filename, pdf_filename):  # Convert EPUB to PDF
+def epub_to_pdf(epub_filename: str, pdf_filename: str) -> None:  # Convert EPUB to PDF
 
     downloads_path = str(Path.home() / "Downloads")
 
@@ -32,19 +33,15 @@ def epub_to_pdf(epub_filename, pdf_filename):  # Convert EPUB to PDF
 
     os.remove(file_path_epub)
 
+def remove_unwanted_chars_from_list(char_list: T.List[str], item: str) -> str:
+    for char in char_list:
+        item = item.replace(char, "")
+    return item
 
 def remove_unwanted_characters(
-    a,
-):  # Removes all the Characters that are not valid in a Name of a Pdf
-    a = a.replace("/", "")
-    a = a.replace(":", "")
-    a = a.replace("?", "")
-    a = a.replace("*", "")
-    a = a.replace("<", "")
-    a = a.replace(">", "")
-    a = a.replace("|", "")
-
-    return a
+    pdf_name: str,
+) -> str:  # Removes all the Characters that are not valid in a Name of a Pdf
+    return remove_unwanted_chars_from_list(list("/:?*<>|,.();"), pdf_name)
 
 
 def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
@@ -582,18 +579,6 @@ def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
     return download_of_zlib_completed
 
 
-def remove_unwanted_characters_for_pdfdrive(a):
-    a = a.replace("/", "_")
-    a = a.replace(":", "_")
-    a = a.replace("?", "_")
-    a = a.replace("*", "_")
-    a = a.replace("<", "_")
-    a = a.replace(">", "_")
-    a = a.replace("|", "_")
-
-    return a
-
-
 downloads_path = str(Path.home() / "Downloads")
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -737,7 +722,7 @@ def selenium_headless_downloader(website, download_link, extension):
 
         title_of_book = book_title_for_pdfdrive(download_link)
 
-        title_of_book = remove_unwanted_characters_for_pdfdrive(title_of_book)
+        title_of_book = remove_unwanted_characters(title_of_book)
 
         title_of_book = title_of_book + " ( PDFDrive )"
 
@@ -794,24 +779,6 @@ def selenium_headless_downloader(website, download_link, extension):
 
     return download_complete_via_selenium
 
-
-def remove_unwanted_characters_from_author(a):
-    a = a.replace("/", "")
-    a = a.replace(":", "")
-    a = a.replace("?", "")
-    a = a.replace("*", "")
-    a = a.replace("<", "")
-    a = a.replace(">", "")
-    a = a.replace("|", "")
-    a = a.replace(",", "")
-    a = a.replace(".", "")
-    a = a.replace("(", "")
-    a = a.replace(")", "")
-    a = a.replace(";", "")
-
-    return a
-
-
 def easy_search_for_book(a):
 
     if ":" in book:
@@ -860,7 +827,7 @@ characters_to_strip = " .,;:/?!#*&^-}_{~`@$%)[](<>|+="
 author = author.strip(characters_to_strip)
 book = book.strip(characters_to_strip)
 
-author = remove_unwanted_characters_from_author(author)
+author = remove_unwanted_characters(author)
 
 book = easy_search_for_book(book)
 
