@@ -809,8 +809,8 @@ def easy_search_for_book(a):
 # book = input("Enter book name : ")
 # author = input("Enter book author : ")
 
-book   = "Moonwalking with Einstein: The Art and Science of Remembering Everything"
-author = "Joshua Foer"
+book   = ""
+author = ""
 
 characters_to_strip = " .,;:/?!#*&^-}_{~`@$%)[](<>|+="
 
@@ -823,16 +823,16 @@ book = easy_search_for_book(book)
 
 extension_pdf = "pdf"
 
-# if search_in_libgen(author, book, extension_pdf) == False:
+if search_in_libgen(author, book, extension_pdf) == False:
 
-if search_in_zlib(author, book, extension_pdf) == False:
+    if search_in_zlib(author, book, extension_pdf) == False:
 
-    if search_in_pdf_drive(author, book) == False:
+        if search_in_pdf_drive(author, book) == False:
 
-        extension_epub = "epub"
+            extension_epub = "epub"
 
-        if search_in_libgen(author, book, extension_epub) == False:
+            if search_in_libgen(author, book, extension_epub) == False:
 
-            if search_in_zlib(author, book, extension_epub) == False:
+                if search_in_zlib(author, book, extension_epub) == False:
 
-                print("The Book is not available in the Ebook Format")
+                    print("The Book is not available in the Ebook Format")
