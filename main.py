@@ -1,16 +1,16 @@
-import fitz, os
-from pathlib import Path
+import fitz
 import requests, bs4, webbrowser                        # Importing the Modules for Web-Scraping
-import pandas as pd                                     # Importing the Module for DataFrames
-from download import download                           # Importing the Module for downloading PDF
 import pandas as pd, numpy as np
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from download import download
 import os
-from os.path import exists
 import typing as T
+
+from pathlib  import Path
+from download import download                           # Importing the Module for downloading PDF
+from selenium import webdriver
+from os.path  import exists
+from selenium.webdriver.common.by   import By
+from selenium.webdriver.common.keys import Keys
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -36,8 +36,15 @@ def epub_to_pdf(epub_filename: str, pdf_filename: str) -> None:                 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 
-def remove_unwanted_characters(pdf_name: str,) -> str:              # Removes all the Characters that are not valid
-    chars = list("/:?*<>|,.();")
+# def remove_unwanted_characters(pdf_name: str,) -> str:              # Removes all the Characters that are not valid
+#     chars = list("/:?*<>|,.();")
+#     result = pdf_name
+#     for char in chars:
+#         result = result.replace(char, "")
+#     return result
+
+def remove_character_not_valid_in_pdfname(pdf_name: str,) -> str:                       # Removes all the Characters that are not valid in a Name of a Pdf
+    chars = list("/:?*<>|")
     result = pdf_name
     for char in chars:
         result = result.replace(char, "")
