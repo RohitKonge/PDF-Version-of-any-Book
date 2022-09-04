@@ -677,11 +677,20 @@ def selenium_headless_downloader(website, download_link, extension):
     options.add_argument("--no-sandbox")
     options.add_experimental_option("detach", True)
 
-    driver = webdriver.Chrome(
-        "chromedriver", options=options)  # For Headless Browser
+    # driver = webdriver.Chrome(
+    #     "chromedriver", options=options)  # For Headless Browser
 
-    # driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))      # For Browser
+    # driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))      # For Browser      
+    
+    def resource_path(relative_path):
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
 
+    driver = webdriver.Chrome(resource_path("chromedriver.exe") , options=options) 
+    
     params = {"behavior": "allow", "downloadPath": downloads_path}
 
     driver.execute_cdp_cmd("Page.setDownloadBehavior", params)
