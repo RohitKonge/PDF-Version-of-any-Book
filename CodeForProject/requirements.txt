@@ -1,0 +1,8 @@
+download
+numpy
+pymupdf
+pandas
+beautifulsoup4
+lxml
+selenium
+webdriver-manager
