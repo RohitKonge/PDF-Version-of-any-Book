@@ -1,27 +1,52 @@
 
 import fitz
-import eel
 import requests
-import bs4
-import webbrowser                        # Importing the Modules for Web-Scraping
-import pandas as pd
-import numpy as np
-import os
-import typing as T
-import threading
-import socket
+
+# import bs4
+from bs4 import BeautifulSoup
+
+# import webbrowser                        # Importing the Modules for Web-Scraping
+
+# import pandas as pd
+from pandas import Series
+from pandas import DataFrame
+from pandas import read_html
+
+# import numpy as np
+from numpy import array
+
+# import os
+from os import remove as os_remove
+from os import path as os_path
+from os.path import exists
+
+# import typing as T
+
+# import threading
+from threading import Thread
+
+# import socket
+from socket import gethostbyname
+from socket import gethostname
 
 from pathlib import Path
+
 # Importing the Module for downloading PDF
 from download import download
 from selenium import webdriver
-from os.path import exists
+# from os.path import exists
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 # note that module name has changed from Tkinter in Python 2 to tkinter in Python 3
-from tkinter import *
+# from tkinter import *
 
+from tkinter import Tk
+from tkinter import PhotoImage
+from tkinter import Canvas
+from tkinter import Label
+from tkinter import Text
+from tkinter import Button
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -46,7 +71,8 @@ def epub_to_pdf(epub_filename, pdf_filename):                              # Con
 
         doc.close()
 
-        os.remove(file_path_epub)
+        # os.remove(file_path_epub)
+        os_remove(file_path_epub)
     except:
         pass
 
@@ -90,7 +116,7 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
     # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     # Adds the Table of the Webpage in a List
-    list_of_dataframes = pd.read_html(link_to_search)
+    list_of_dataframes = read_html(link_to_search)
 
     # DataFrame of Books from the List
     table = list_of_dataframes[2]
@@ -119,11 +145,11 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
     result = requests.get(link_to_search)
 
-    soup = bs4.BeautifulSoup(result.text, "lxml")
+    soup = BeautifulSoup(result.text, "lxml")
 
     titles_list = [soup.find_all('a', id=x)[0].getText() for x in table['ID']]
 
-    table['Title'] = pd.Series(titles_list, index=table.index, dtype='str')
+    table['Title'] = Series(titles_list, index=table.index, dtype='str')
 
     table = table.astype({'Author(s)': str, 'Title': str})
 
@@ -240,7 +266,7 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
         result = requests.get(link_to_search)
 
         # Beautfiul Soup Instance
-        soup = bs4.BeautifulSoup(result.text, "lxml")
+        soup = BeautifulSoup(result.text, "lxml")
 
         # List of the Anchor Elements from the Webpage Source Code
         a = soup.select(".c > tr > td > a")
@@ -271,7 +297,7 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
         result_2 = requests.get(link_of_download_page)
 
         # Beautfiul Soup Instance
-        soup = bs4.BeautifulSoup(result_2.text, "lxml")
+        soup = BeautifulSoup(result_2.text, "lxml")
 
         # List of the Anchor Elements from the Webpage Source Code
         d = soup.select("#download > h2 > a")
@@ -299,7 +325,7 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
             path = download(url, file_path, replace=True,
                             kind="file", timeout=300.0)  # Downloading the Pdf
             
-            button_1['state'] = NORMAL
+            button_1['state'] = "normal"
             
             info_text.config(text = "Book has been downloaded!")
 
@@ -316,7 +342,7 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
             epub_to_pdf(book_name, book_name)
             
-            button_1['state'] = NORMAL
+            button_1['state'] = "normal"
             
             info_text.config(text = "Book has been downloaded!")
 
@@ -350,63 +376,67 @@ def search_in_pdf_drive(author_searched_by_user, book_searched_by_user):
 
     # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    result                  = requests.get(link_to_search)
+    try:
+        
+        result                  = requests.get(link_to_search)
 
-    soup                    = bs4.BeautifulSoup(result.text, "lxml")
+        soup                    = BeautifulSoup(result.text, "lxml")
 
-    name_of_books           = soup.select(".ai-search > h2")
+        name_of_books           = soup.select(".ai-search > h2")
 
-    year_of_books           = soup.select(".file-info > .fi-year ")
+        year_of_books           = soup.select(".file-info > .fi-year ")
 
-    downloads_of_books      = soup.select(".file-info > .fi-hit")
+        downloads_of_books      = soup.select(".file-info > .fi-hit")
 
-    to_make_download_links  = soup.select(".file-right > a ")
+        to_make_download_links  = soup.select(".file-right > a ")
 
-    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    a = []
-    b = []
+        a = []
+        b = []
 
-    for x in name_of_books:
-        a.append(x.getText())
+        for x in name_of_books:
+            a.append(x.getText())
 
-    for y in downloads_of_books:
-        b.append(int(y.getText().split(" ")[0].replace(",", "")))
+        for y in downloads_of_books:
+            b.append(int(y.getText().split(" ")[0].replace(",", "")))
 
-    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    df_book = pd.DataFrame(data=zip(a, b), columns=["Book", "Downloads"])
+        df_book = DataFrame(data=zip(a, b), columns=["Book", "Downloads"])
 
-    df_book = df_book.astype({"Book": str, "Downloads": int})
+        df_book = df_book.astype({"Book": str, "Downloads": int})
 
-    df_book.sort_values("Downloads", ascending=False, inplace=True)
+        df_book.sort_values("Downloads", ascending=False, inplace=True)
 
-    index_of_book = -1
+        index_of_book = -1
 
-    for x in df_book.index:
-        if df_book.loc[x]["Book"].lower().find(to_search.lower()) == 0:
-            index_of_book = x
-            break
+        for x in df_book.index:
+            if df_book.loc[x]["Book"].lower().find(to_search.lower()) == 0:
+                index_of_book = x
+                break
 
-    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    if index_of_book > -1:
+        if index_of_book > -1:
 
-        raw_download_link = to_make_download_links[index_of_book].get("href")
+            raw_download_link = to_make_download_links[index_of_book].get("href")
 
-        download_link = raw_download_link[::-1].replace("e", "d", 1)[::-1]
+            download_link = raw_download_link[::-1].replace("e", "d", 1)[::-1]
 
-        link_of_download_page = f"http://www.pdfdrive.com{download_link}"
+            link_of_download_page = f"http://www.pdfdrive.com{download_link}"
 
-        # webbrowser.open(link_of_download_page)
+            # webbrowser.open(link_of_download_page)
 
-        download_of_pdfdrive_completed = selenium_headless_downloader(
-            "pdfdrive", link_of_download_page, "pdf"
-        )
+            download_of_pdfdrive_completed = selenium_headless_downloader(
+                "pdfdrive", link_of_download_page, "pdf"
+            )
 
-    else:
+        else:
 
-        download_of_pdfdrive_completed = False
+            download_of_pdfdrive_completed = False
+    except:
+        pass
 
     return download_of_pdfdrive_completed
 
@@ -434,172 +464,176 @@ def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    result = requests.get(link_to_search)
+    try:
+            
+        result = requests.get(link_to_search)
 
-    soup = bs4.BeautifulSoup(result.text, "lxml")
+        soup = BeautifulSoup(result.text, "lxml")
 
-    a = soup.select(".book-rating-interest-score")
-    b = soup.select(".book-rating-quality-score")
+        a = soup.select(".book-rating-interest-score")
+        b = soup.select(".book-rating-quality-score")
 
-    book_rating_interest_score_list = np.array(
-        [float(x.getText().strip()) for x in a])
+        book_rating_interest_score_list = array(
+            [float(x.getText().strip()) for x in a])
 
-    book_rating_quality_score_list = np.array(
-        [float(y.getText().strip()) for y in b])
+        book_rating_quality_score_list = array(
+            [float(y.getText().strip()) for y in b])
 
-    rating_of_book_list = (
-        book_rating_interest_score_list + book_rating_quality_score_list
-    )
-
-    d = soup.find_all("h3", itemprop="name")
-
-    link_of_book_list = [
-        ("https://b-ok.asia" + x.select("a")[0].get("href")) for x in d
-    ]
-
-    title_of_book_list = [x.select("a")[0].getText() for x in d]
-
-    # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    e = soup.find_all("div", class_="authors")
-
-    author_list = []
-
-    for length in e:
-
-        individual_author_name = ""
-
-        for element in length:
-            individual_author_name = individual_author_name + element.getText() + " "
-
-        author_list.append(individual_author_name)
-
-    books_dataframe = pd.DataFrame(
-        {
-            "Title": title_of_book_list,
-            "Author": author_list,
-            "Rating": rating_of_book_list,
-            "Link": link_of_book_list,
-        }
-    )
-
-    books_dataframe = books_dataframe.astype(
-        {"Title": str, "Author": str, "Rating": float, "Link": str}
-    )
-
-    books_dataframe.sort_values("Rating", ascending=False, inplace=True)
-
-    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    def check_for_author(
-        index_for_author,
-    ):  # For Matching the 'Name of the Author given by the user'
-        # and the 'Name of the Author of the Books from Libgen'
-
-        actual_author_name = books_dataframe["Author"][index_for_author].split(
-            " "
-        )  # Name of the Author of the Book from Libgen
-
-        result = (
-            False  # Setting it to false so at the first match we can break the loop
+        rating_of_book_list = (
+            book_rating_interest_score_list + book_rating_quality_score_list
         )
 
-        for (
-            word
-        ) in (
-            actual_author_name
-        ):  # Looping through the Name of the Author given by the user
-            if word in author:  # Returns a Number >= 0 if it finds the input given
+        d = soup.find_all("h3", itemprop="name")
+
+        link_of_book_list = [
+            ("https://b-ok.asia" + x.select("a")[0].get("href")) for x in d
+        ]
+
+        title_of_book_list = [x.select("a")[0].getText() for x in d]
+
+        # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        e = soup.find_all("div", class_="authors")
+
+        author_list = []
+
+        for length in e:
+
+            individual_author_name = ""
+
+            for element in length:
+                individual_author_name = individual_author_name + element.getText() + " "
+
+            author_list.append(individual_author_name)
+
+        books_dataframe = DataFrame(
+            {
+                "Title": title_of_book_list,
+                "Author": author_list,
+                "Rating": rating_of_book_list,
+                "Link": link_of_book_list,
+            }
+        )
+
+        books_dataframe = books_dataframe.astype(
+            {"Title": str, "Author": str, "Rating": float, "Link": str}
+        )
+
+        books_dataframe.sort_values("Rating", ascending=False, inplace=True)
+
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        def check_for_author(
+            index_for_author,
+        ):  # For Matching the 'Name of the Author given by the user'
+            # and the 'Name of the Author of the Books from Libgen'
+
+            actual_author_name = books_dataframe["Author"][index_for_author].split(
+                " "
+            )  # Name of the Author of the Book from Libgen
+
+            result = (
+                False  # Setting it to false so at the first match we can break the loop
+            )
+
+            for (
+                word
+            ) in (
+                actual_author_name
+            ):  # Looping through the Name of the Author given by the user
+                if word in author:  # Returns a Number >= 0 if it finds the input given
+                    result = True
+                    break
+
+            if len(author) == 0:
                 result = True
-                break
 
-        if len(author) == 0:
-            result = True
+            return result
 
-        return result
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        def check_for_title(
+            title_of_book,
+        ):  # For Matching the 'Title of the Book given by the user'
+            # and the 'Title of the Books from Libgen'
+            len_of_book_searched = len(
+                to_search.split(" ")
+            )  # Length of the List of Words in the Title given by the user
 
-    def check_for_title(
-        title_of_book,
-    ):  # For Matching the 'Title of the Book given by the user'
-        # and the 'Title of the Books from Libgen'
-        len_of_book_searched = len(
-            to_search.split(" ")
-        )  # Length of the List of Words in the Title given by the user
+            len_of_book_by_zlib = len(title_of_book.split(" "))
 
-        len_of_book_by_zlib = len(title_of_book.split(" "))
+            split_of_book_by_user = to_search.lower().split(
+                " "
+            )  # List of Words in the Title given by Libgen
 
-        split_of_book_by_user = to_search.lower().split(
-            " "
-        )  # List of Words in the Title given by Libgen
+            split_of_book_by_zlib = title_of_book.lower().split(
+                " "
+            )  # List of Words in the Title given by Libgen
 
-        split_of_book_by_zlib = title_of_book.lower().split(
-            " "
-        )  # List of Words in the Title given by Libgen
-
-        no_of_matches = 0  # Variable for the matches of Titles given by user and Libgen
-
-        for i in range(
-            0, len_of_book_by_zlib
-        ):  # Looping through the List of Words in the Title given by Libgen
-            if (
-                split_of_book_by_zlib[i].lower() in to_search.lower()
-            ):  # Checking if the Word is in the Title given by the user
-                no_of_matches += (
-                    1  # On a successful match, we increase the number of matches
-                )
-
-        if no_of_matches != len_of_book_by_zlib:
-
-            no_of_matches = 0
+            no_of_matches = 0  # Variable for the matches of Titles given by user and Libgen
 
             for i in range(
-                0, len_of_book_searched
+                0, len_of_book_by_zlib
             ):  # Looping through the List of Words in the Title given by Libgen
                 if (
-                    split_of_book_by_user[i].lower() in title_of_book.lower()
+                    split_of_book_by_zlib[i].lower() in to_search.lower()
                 ):  # Checking if the Word is in the Title given by the user
-                    no_of_matches += 1
+                    no_of_matches += (
+                        1  # On a successful match, we increase the number of matches
+                    )
 
-        return (no_of_matches == len_of_book_searched) or (
-            no_of_matches == len_of_book_by_zlib
-        )  # Returns the Boolean of the match
+            if no_of_matches != len_of_book_by_zlib:
 
-    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                no_of_matches = 0
 
-    book_found = False
+                for i in range(
+                    0, len_of_book_searched
+                ):  # Looping through the List of Words in the Title given by Libgen
+                    if (
+                        split_of_book_by_user[i].lower() in title_of_book.lower()
+                    ):  # Checking if the Word is in the Title given by the user
+                        no_of_matches += 1
 
-    index_number = 0
+            return (no_of_matches == len_of_book_searched) or (
+                no_of_matches == len_of_book_by_zlib
+            )  # Returns the Boolean of the match
 
-    for (
-        i
-    ) in (
-        books_dataframe.index
-    ):  # Looping through the DataFrame which has 'Author' & 'Title' Columns
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        if (check_for_title(books_dataframe["Title"][i])) & (
-            check_for_author(i)
-        ):  # Checking if the Title Given by the User is
-            # in the Title Given by Libgen
-            book_found = True
-            index_number = i  # Setting the i'th index to index_number
-            break
+        book_found = False
 
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        index_number = 0
 
-    if book_found:
+        for (
+            i
+        ) in (
+            books_dataframe.index
+        ):  # Looping through the DataFrame which has 'Author' & 'Title' Columns
 
-        link_of_download_page = books_dataframe.loc[index_number, "Link"]
+            if (check_for_title(books_dataframe["Title"][i])) & (
+                check_for_author(i)
+            ):  # Checking if the Title Given by the User is
+                # in the Title Given by Libgen
+                book_found = True
+                index_number = i  # Setting the i'th index to index_number
+                break
 
-        # webbrowser.open(link_of_download_page)
+        # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        download_of_zlib_completed = selenium_headless_downloader(
-            "zlib", link_of_download_page, extension
-        )
+        if book_found:
 
-    else:
-        download_of_zlib_completed = False
+            link_of_download_page = books_dataframe.loc[index_number, "Link"]
+
+            # webbrowser.open(link_of_download_page)
+
+            download_of_zlib_completed = selenium_headless_downloader(
+                "zlib", link_of_download_page, extension
+            )
+
+        else:
+            download_of_zlib_completed = False
+    except:
+        pass
 
     return download_of_zlib_completed
 
@@ -612,9 +646,16 @@ def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.dirname(__file__)
-    return os.path.join(base_path, relative_path)
-
+        
+        # base_path = os.path.dirname(__file__)
+        
+        base_path = os_path.dirname(__file__)
+    
+    # return os.path.join(base_path, relative_path)
+    
+    return os_path.join(base_path, relative_path)
+    
+    
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Removes all the Characters that are not valid
@@ -635,7 +676,7 @@ def book_title_for_pdfdrive(download_link):
 
     result = requests.get(download_link)
 
-    soup = bs4.BeautifulSoup(result.text, "lxml")
+    soup = BeautifulSoup(result.text, "lxml")
 
     a = soup.find("h1", class_="ebook-title")
 
@@ -653,7 +694,7 @@ def book_title_for_zlib(download_link):
 
     result = requests.get(download_link)
 
-    soup = bs4.BeautifulSoup(result.text, "lxml")
+    soup = BeautifulSoup(result.text, "lxml")
 
     a = soup.find("h1", itemprop="name").getText()
 
@@ -724,7 +765,7 @@ def selenium_headless_downloader(website, download_link, extension):
             driver.get(download_link)
         except:
             info_text.config(text = "Servor Error. Please Try Again")
-            button_1['state'] = NORMAL
+            button_1['state'] = "normal"
 
         driver.implicitly_wait(10)
 
@@ -756,7 +797,7 @@ def selenium_headless_downloader(website, download_link, extension):
             driver.get(download_link)
         except:
             info_text.config(text = "Servor Error. Please Try Again")
-            button_1['state'] = NORMAL
+            button_1['state'] = "normal"
             
 
         content = driver.find_element(By.CLASS_NAME, "book-details-button")
@@ -781,18 +822,35 @@ def selenium_headless_downloader(website, download_link, extension):
 
         title_of_book = title_of_book + " ( PDFDrive )"
 
-        path_to_file = f"{downloads_path}\\{title_of_book}.pdf"
+        path_to_file_pdf = f"{downloads_path}\\{title_of_book}.pdf"
+        
+        path_to_file_epub = f"{downloads_path}\\{title_of_book}.epub"
+        
+        path_to_file_mobi = f"{downloads_path}\\{title_of_book}.mobi"       
+        
+        it_downloaded_epub = False
 
         while True:
 
-            file_exists = exists(path_to_file)
+            file_exists_pdf = exists(path_to_file_pdf)
+            
+            file_exists_epub = exists(path_to_file_epub)
+            
+            file_exists_mobi = exists(path_to_file_mobi)
                                     
-            if file_exists:
-                break
+            if (file_exists_pdf or file_exists_epub or file_exists_mobi):
+                
+                if(file_exists_epub):
+                    it_downloaded_epub = True
 
+                break
+        
+        if(it_downloaded_epub):
+            epub_to_pdf(title_of_book, title_of_book)
+        
         download_complete_via_selenium = True
         
-        button_1['state'] = NORMAL
+        button_1['state'] = "normal"
         
         info_text.config(text = "Book has been downloaded!")
 
@@ -802,7 +860,7 @@ def selenium_headless_downloader(website, download_link, extension):
 
         result = requests.get(driver.current_url)
 
-        soup = bs4.BeautifulSoup(result.text, "lxml")
+        soup = BeautifulSoup(result.text, "lxml")
         try:
             driver.find_element(By.CLASS_NAME, "download-limits-error")
             download_complete_via_selenium = False
@@ -833,7 +891,7 @@ def selenium_headless_downloader(website, download_link, extension):
             
                 epub_to_pdf(title_of_book, title_of_book)
                 
-            button_1['state'] = NORMAL
+            button_1['state'] = "normal"
             
             info_text.config(text = "Book has been downloaded!")
 
@@ -940,7 +998,7 @@ def search_the_book(author_, book_):
                         
                         info_text.config(text = "Book Not Available")
                         
-                        button_1['state'] = NORMAL
+                        button_1['state'] = "normal"
     
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1044,9 +1102,14 @@ def btn_click():
     
     author_inp  = entry_2.get(1.0, "end-1c")
     
+    book_inp    = book_inp.title()
+    
+    author_inp  = author_inp.title()
+    
     search_the_book(author_inp, book_inp)
     
-    thread_2 = threading.Thread()
+    # thread_2 = threading.Thread()
+    thread_2 = Thread()
     thread_2.start()
     thread_2.join()
 
@@ -1054,15 +1117,17 @@ def thread_make():
     
     if(check_internet_connection()):
         info_text.config(text="Searching....")
-        button_1['state'] = DISABLED
-        thread_1 = threading.Thread(target=btn_click)
+        button_1['state'] = "disabled"
+        # thread_1 = threading.Thread(target=btn_click)
+        thread_1 = Thread(target=btn_click)
         thread_1.start()
     
 def check_internet_connection():
     
     connected_to_internet = False
     
-    IPaddress=socket.gethostbyname(socket.gethostname())
+    # IPaddress=socket.gethostbyname(socket.gethostname())
+    IPaddress=gethostbyname(gethostname())
     if IPaddress=="127.0.0.1":
         connected_to_internet = False
         info_text.config(text = "Check your internet connection")
@@ -1082,7 +1147,7 @@ button_1 = Button(
     highlightthickness=0,
     command= thread_make,
     relief="flat",
-    state=NORMAL
+    state="normal"
 )
 button_1.place(
     x=200.0,
@@ -1092,6 +1157,7 @@ button_1.place(
 )
 
 window.resizable(False, False)
+window.attributes('-topmost', 1)
 window.mainloop()
 
 # --------------------------------------------------------------    Current GUI    ---------------------------------------------------------------------------------------

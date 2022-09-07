@@ -23,6 +23,10 @@ window = Tk()
 window.geometry("574x287")
 window.configure(bg="#FFFFFF")
 
+import string
+a = "what Happened to you?"
+# a = ' '.join(a.title() for a in a.split())
+print(a.title())
 
 canvas = Canvas(
     window,
