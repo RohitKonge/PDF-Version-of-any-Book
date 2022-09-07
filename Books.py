@@ -1106,12 +1106,19 @@ def btn_click():
     
     author_inp  = author_inp.title()
     
-    search_the_book(author_inp, book_inp)
-    
-    # thread_2 = threading.Thread()
-    thread_2 = Thread()
-    thread_2.start()
-    thread_2.join()
+    if(book_inp == "" and author_inp == ""):
+        info_text.config(text = "Please enter the Book's Title and Author")
+        button_1['state'] = "normal"
+    elif(book_inp == "" and author_inp != ""):
+        info_text.config(text = "Please enter the Book's Title")
+        button_1['state'] = "normal"
+    else:
+        search_the_book(author_inp, book_inp)
+        
+        # thread_2 = threading.Thread()
+        thread_2 = Thread()
+        thread_2.start()
+        thread_2.join()
 
 def thread_make():
     
