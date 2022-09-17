@@ -97,26 +97,37 @@ def remove_character_not_valid_in_pdfname(a):
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 
-pdf_size_to_download_for_zlib       = ""
 
-byte_info_for_pdfdrive              = ""
+pdf_size_to_download_for_zlib = ""
 
+byte_info_for_pdfdrive = ""
+
+keep_running = True
 # --------------------------------------------       LIBGEN                -----------------------------------------------------------
 
 # pdf_file_size_to_download = ""
 
 
-def downloaded_stat_for_libgen(Pdf_file_size_to_download):    
-    while True:
+def downloaded_stat_for_libgen(Pdf_file_size_to_download):
+    global keep_running
+    
+    while keep_running:
+        print(keep_running)
         for fname in os.listdir(downloads_path):
             if fname.endswith('.part'):
                 try:
-                    file_size  = os.path.getsize(f"{downloads_path}\\{fname}")
-                    info_text.config(text= f'Downloading....{round((file_size / (1024 * 1024)),1)} {Pdf_file_size_to_download.split()[1]} / {Pdf_file_size_to_download}')
-                    time.sleep(0.2)
-                except Exception as e: 
+                    file_size = os.path.getsize(f"{downloads_path}\\{fname}")
+                    info_text.config(
+                        text=f'Downloading....{round((file_size / (1024 * 1024)),1)} {Pdf_file_size_to_download.split()[1]} / {Pdf_file_size_to_download}'
+                        )
+                    
+                    time.sleep(0.2)                                      
+                except Exception as e:
                     print(e)
-    
+        if(keep_running == False):
+            print(keep_running)
+            break
+
 
 def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
@@ -339,6 +350,8 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
 
         downloads_path = str(Path.home() / "Downloads")
         
+        global keep_running
+
         if(extension == 'pdf'):
 
             info_text.config(text="Downloading....")
@@ -348,14 +361,17 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
             file_path_while_downloading = f"{downloads_path}\\{book_name}.pdf.part"
 
             pdf_file_size_to_download = table.loc[index_number]["Size"]
-            
-            thread_3 = Thread(target = downloaded_stat_for_libgen, args=(pdf_file_size_to_download,))
+
+            thread_3 = Thread(target=downloaded_stat_for_libgen,
+                              args=(pdf_file_size_to_download,))
             thread_3.start()
-            
+
             path = download(url, file_path, replace=True,
                             kind="file", timeout=300.0)  # Downloading the Pdf
 
-            button_1['state'] = "normal"
+            button_1['state'] = "normal"           
+            
+            keep_running = False
 
             info_text.config(text="Book has been downloaded!")
 
@@ -366,10 +382,11 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
             info_text.config(text="Downloading....")
 
             file_path = f"{downloads_path}\\{book_name}.epub"
-            
+
             pdf_file_size_to_download = table.loc[index_number]["Size"]
-            
-            thread_3 = Thread(target = downloaded_stat_for_libgen, args=(pdf_file_size_to_download,))
+
+            thread_3 = Thread(target=downloaded_stat_for_libgen,
+                              args=(pdf_file_size_to_download,))
             thread_3.start()
 
             path = download(url, file_path, replace=True,
@@ -378,6 +395,8 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
             epub_to_pdf(book_name, book_name)
 
             button_1['state'] = "normal"
+            
+            keep_running = False
 
             info_text.config(text="Book has been downloaded!")
 
@@ -385,7 +404,6 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
     else:
 
         download_of_libgen_completed = False
-        
 
     return download_of_libgen_completed
 
@@ -455,9 +473,9 @@ def search_in_pdf_drive(author_searched_by_user, book_searched_by_user):
 
         if index_of_book > -1:
 
-            raw_download_link = to_make_download_links[index_of_book].get("href")
+            raw_download_link = to_make_download_links[index_of_book].get(
+                "href")
             # print(raw_download_link)
-            
 
             download_link = raw_download_link[::-1].replace("e", "d", 1)[::-1]
 
@@ -465,62 +483,29 @@ def search_in_pdf_drive(author_searched_by_user, book_searched_by_user):
             # print("link_of_download_page " + link_of_download_page )
 
             # webbrowser.open(link_of_download_page)
-            
-            result = requests.get(f"http://www.pdfdrive.com{raw_download_link}")
+
+            result = requests.get(
+                f"http://www.pdfdrive.com{raw_download_link}")
 
             soup = BeautifulSoup(result.text, "lxml")
 
-            book_info_for_pdfdrive = soup.select(".ebook-file-info > .info-green")
+            book_info_for_pdfdrive = soup.select(
+                ".ebook-file-info > .info-green")
             # print(book_info_for_pdfdrive)
-            
+
             global byte_info_for_pdfdrive
             
-            # print("byte_info_for_pdfdrive " +  byte_info_for_pdfdrive)
-            # byte_info_for_pdfdrive = ""
-
             for i in book_info_for_pdfdrive:
                 if "KB" in i.getText():
                     byte_info_for_pdfdrive = i.getText()
                     # print(byte_info_for_pdfdrive)
                     break
-                
+
                 elif "MB" in i.getText():
                     byte_info_for_pdfdrive = i.getText()
                     # print(byte_info_for_pdfdrive)
                     break
-            # print("byte_info_for_pdfdrive " +  byte_info_for_pdfdrive)
- # ----------------------------------------------------------------------------------------------------------------------------------------------
-
-# import requests
-# from bs4 import BeautifulSoup
-
-# link_of_download_page = "https://www.pdfdrive.com/no-drama-discipline-the-whole-brain-way-to-calm-the-chaos-and-nurture-your-childs-developing-mind-e60737124.html"
- 
-# result = requests.get(link_of_download_page)
-
-# soup = BeautifulSoup(result.text, "lxml")
-
-# book_info = soup.select(".ebook-file-info > .info-green")
-# print(book_info)
-# byte_info = ""
-
-# for i in book_info:
-#     if "KB" in i.getText():
-#         byte_info = i.getText()
-#         print(byte_info)
-#         break
-    
-#     elif "MB" in i.getText():
-#         byte_info = i.getText()
-#         print(byte_info)
-#         break
-
- 
- 
- 
-  # ----------------------------------------------------------------------------------------------------------------------------------------------
-
-
+                
             download_of_pdfdrive_completed = selenium_headless_downloader(
                 "pdfdrive", link_of_download_page, "pdf"
             )
@@ -536,9 +521,6 @@ def search_in_pdf_drive(author_searched_by_user, book_searched_by_user):
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------       Zlib             --------------------------------------------------------------------------------
-
-
-
 
 
 def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
@@ -559,7 +541,7 @@ def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
     download_of_zlib_completed = False
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
+
     try:
 
         result = requests.get(link_to_search)
@@ -721,23 +703,24 @@ def search_in_zlib(author_searched_by_user, book_searched_by_user, extension):
 
             link_of_download_page = books_dataframe.loc[index_number, "Link"]
 
-            # webbrowser.open(link_of_download_page)        
-            
-            try :
-                
+            # webbrowser.open(link_of_download_page)
+
+            try:
+
                 # print("point 2")
                 result = requests.get(link_of_download_page)
-                
+
                 soup = BeautifulSoup(result.text, "lxml")
-                
+
                 global pdf_size_to_download_for_zlib
-                
-                pdf_size_to_download_for_zlib  = soup.select(".bookDetailsBox > .bookProperty.property__file > .property_value ")[0].getText().split(",")[1]
-                
+
+                pdf_size_to_download_for_zlib = soup.select(
+                    ".bookDetailsBox > .bookProperty.property__file > .property_value ")[0].getText().split(",")[1]
+
                 # print(pdf_size_to_download_for_zlib_list)
-                
+
             except:
-                print("Error faced")        
+                print("Error faced")
 
             download_of_zlib_completed = selenium_headless_downloader(
                 "zlib", link_of_download_page, extension
@@ -954,11 +937,13 @@ def selenium_headless_downloader(website, download_link, extension):
             for fname in os.listdir(downloads_path):
                 if fname.endswith('.crdownload'):
                     try:
-                        file_size  = os.path.getsize(f"{downloads_path}\\{fname}")
+                        file_size = os.path.getsize(
+                            f"{downloads_path}\\{fname}")
                         # info_text_for_download.config(text= f'{round((file_size / (1024 * 1024)),1)} MB')
-                        info_text.config(text=f'Downloading....{round((file_size / (1024 * 1024)),1)} {byte_info_for_pdfdrive.split()[1]} / {byte_info_for_pdfdrive}')
+                        info_text.config(
+                            text=f'Downloading....{round((file_size / (1024 * 1024)),1)} {byte_info_for_pdfdrive.split()[1]} / {byte_info_for_pdfdrive}')
                         time.sleep(0.2)
-                    except Exception as e: 
+                    except Exception as e:
                         print(e)
 
             if (file_exists_pdf or file_exists_epub or file_exists_mobi):
@@ -1006,16 +991,18 @@ def selenium_headless_downloader(website, download_link, extension):
             while True:
 
                 file_exists = exists(path_to_file)
-                
+
                 for fname in os.listdir(downloads_path):
                     if fname.endswith('.crdownload'):
                         try:
                             # print("point 3")
-                            file_size  = os.path.getsize(f"{downloads_path}\\{fname}")
-                            info_text.config(text=f'Downloading....{round((file_size / (1024 * 1024)),1)} MB / {str(pdf_size_to_download_for_zlib)}')
+                            file_size = os.path.getsize(
+                                f"{downloads_path}\\{fname}")
+                            info_text.config(
+                                text=f'Downloading....{round((file_size / (1024 * 1024)),1)} MB / {str(pdf_size_to_download_for_zlib)}')
                             # print(f'Downloading....{round((file_size / (1024 * 1024)),0)} MB / {str(pdf_size_to_download_for_zlib)}')
                             time.sleep(0.2)
-                        except Exception as e: 
+                        except Exception as e:
                             # print("point 4")
                             print(e)
 
@@ -1184,12 +1171,23 @@ info_text.place(relx=0.0,
                 rely=1.0,
                 anchor='sw')
 
+# info_text_libgen = Label(
+#     window,
+#     background="#FFFFFF",
+#     text="sadasdas____dad",
+#     font=("Abel Regular", 7)
+# )
+
+# info_text_libgen.place(relx=0.145,
+#                        rely=1.0,
+#                        anchor='sw')
+
 info_text_for_download = Label(
     window,
     background="#FFFFFF",
     text="Tip: Use the exact Book Title and Author Name",
     font=("Abel Regular", 7),
-    fg = "green"
+    fg="green"
 )
 
 info_text_for_download.place(relx=0.16,
@@ -1272,16 +1270,18 @@ entry_2.place(
 
 def btn_click():
 
-    book_inp    = entry_1.get(1.0, "end-1c")
+    book_inp = entry_1.get(1.0, "end-1c")
 
-    author_inp  = entry_2.get(1.0, "end-1c")
+    author_inp = entry_2.get(1.0, "end-1c")
 
-    book_inp    = book_inp.strip()
-    author_inp  = author_inp.strip()
+    book_inp = book_inp.strip()
+    author_inp = author_inp.strip()
 
     book_inp = book_inp.title()
 
     author_inp = author_inp.title()
+    
+    global keep_running
 
     if(book_inp == "" and author_inp == ""):
         info_text.config(text="Please enter the Book's Title and Author")
@@ -1290,9 +1290,8 @@ def btn_click():
         info_text.config(text="Please enter the Book's Title")
         button_1['state'] = "normal"
     else:
+        keep_running = True
         search_the_book(author_inp, book_inp)
-            
-        # thread_2 = threading.Thread()
         thread_2 = Thread()
         thread_2.start()
         thread_2.join()
@@ -1303,7 +1302,6 @@ def thread_make():
     if(check_internet_connection()):
         info_text.config(text="Searching....")
         button_1['state'] = "disabled"
-        # thread_1 = threading.Thread(target=btn_click)
         try:
             thread_1 = Thread(target=btn_click)
             thread_1.start()
@@ -1347,21 +1345,26 @@ button_1.place(
     height=43.995155334472656
 )
 
+
 def on_opening():
     for fname in os.listdir(downloads_path):
-        if (fname.endswith('.part') or fname.endswith('.crdownload') ):
+        if (fname.endswith('.part') or fname.endswith('.crdownload')):
             try:
                 os_remove((f"{downloads_path}\\{fname}"))
-            except Exception as e: 
+            except Exception as e:
                 print(e)
-    
+
 def on_closing():
     for fname in os.listdir(downloads_path):
-        if (fname.endswith('.part') or fname.endswith('.crdownload') ):
+        if (fname.endswith('.part') or fname.endswith('.crdownload')):
             try:
                 os_remove((f"{downloads_path}\\{fname}"))
-            except Exception as e: 
+            except Exception as e:
                 print(e)
+
+    thread_2 = Thread()
+    thread_2.start()
+    thread_2.join()
     window.destroy()
 
 on_opening()
@@ -1374,4 +1377,4 @@ window.mainloop()
 # --------------------------------------------------------------    Current GUI    ---------------------------------------------------------------------------------------
 
 # Code For .exe :
-# pyinstaller Books.py -n Books.io -F -w --add-binary chromedriver.exe;. -i book.png --add-data book.png;. --add-data entry_1.png;. --add-data entry_2.png;. --add-data button_1.png;.
+# pyinstaller Books.py -n Books.io -w --add-binary chromedriver.exe;. -i book.png --add-data book.png;. --add-data entry_1.png;. --add-data entry_2.png;. --add-data button_1.png;.
