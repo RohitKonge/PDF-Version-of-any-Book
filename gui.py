@@ -3,6 +3,17 @@
 # https://github.com/ParthJadhav/Tkinter-Designer
 
 
+import os
+
+file_name = "C:/Users/AbhishekKonge/Downloads/Foundation Chemistry for Class X Part A standard 10 for IIT JEE Foundation ( PDFDrive ).pdf.crdownload"
+
+file_stats = os.stat(file_name)
+
+print(f'File Size in MegaBytes is {round((file_stats.st_size / (1024 * 1024)),1)} MB')
+print((file_stats.st_size))
+print(type(file_stats))
+
+
 from pathlib import Path
 
 # from tkinter import *
@@ -37,7 +48,7 @@ canvas = Canvas(
     highlightthickness=0,
     relief="ridge"
 )
-
+print(((1)))
 canvas.place(x=0, y=0)
 canvas.create_text(
     27.600372314453125,
