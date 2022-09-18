@@ -54,30 +54,48 @@ from tkinter import messagebox
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def epub_to_pdf(epub_filename, pdf_filename):                              # Convert EPUB to PDF
+# def epub_to_pdf(epub_filename, pdf_filename):                              # Convert EPUB to PDF
 
+#     downloads_path  = str(Path.home() / "Downloads")
+
+#     file_path_epub  = f"{downloads_path}\\{epub_filename}.epub"
+
+#     file_path_pdf   = f"{downloads_path}\\{pdf_filename}.pdf"
+
+#     try:
+
+#         doc = fitz.open(file_path_epub)
+
+#         a   = doc.convert_to_pdf()
+
+#         pdf = fitz.open("pdf", a)
+
+#         pdf.save(file_path_pdf)
+
+#         doc.close()
+
+#         # os.remove(file_path_epub)
+#         os_remove(file_path_epub)
+#     except:
+#         pass
+    
+def epub_to_pdf_gen():                              # Convert EPUB to PDF
     downloads_path = str(Path.home() / "Downloads")
-
-    file_path_epub = f"{downloads_path}\\{epub_filename}.epub"
-
-    file_path_pdf = f"{downloads_path}\\{pdf_filename}.pdf"
-
-    try:
-
-        doc = fitz.open(file_path_epub)
-
-        a = doc.convert_to_pdf()
-
-        pdf = fitz.open("pdf", a)
-
-        pdf.save(file_path_pdf)
-
-        doc.close()
-
-        # os.remove(file_path_epub)
-        os_remove(file_path_epub)
-    except:
-        pass
+    for fname in os.listdir(downloads_path):
+        if fname.endswith('.epub'):
+            fname_n         = fname.split('.epub')[0]
+            file_path_epub  = f"{downloads_path}\\{fname_n}.epub"
+            file_path_pdf   = f"{downloads_path}\\{fname_n}.pdf"
+            try:
+                doc = fitz.open(file_path_epub)
+                a = doc.convert_to_pdf()
+                pdf = fitz.open("pdf", a)
+                pdf.save(file_path_pdf)
+                doc.close()
+                # os.remove(file_path_epub)
+                os_remove(file_path_epub)
+            except:
+                pass
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -392,7 +410,9 @@ def search_in_libgen(author_searched_by_user, book_searched_by_user, extension):
             path = download(url, file_path, replace=True,
                             kind="file", timeout=300.0)  # Downloading the Epub
 
-            epub_to_pdf(book_name, book_name)
+            # epub_to_pdf(book_name, book_name)
+            
+            epub_to_pdf_gen()
 
             button_1['state'] = "normal"
             
@@ -918,43 +938,79 @@ def selenium_headless_downloader(website, download_link, extension):
 
         title_of_book = title_of_book + " ( PDFDrive )"
 
-        path_to_file_pdf = f"{downloads_path}\\{title_of_book}.pdf"
+        # path_to_file_pdf = f"{downloads_path}\\{title_of_book}.pdf"
 
-        path_to_file_epub = f"{downloads_path}\\{title_of_book}.epub"
+        # path_to_file_epub = f"{downloads_path}\\{title_of_book}.epub"
 
-        path_to_file_mobi = f"{downloads_path}\\{title_of_book}.mobi"
+        # path_to_file_mobi = f"{downloads_path}\\{title_of_book}.mobi"
 
-        it_downloaded_epub = False
+        # it_downloaded_epub = False
 
+        # while True:
+
+        #     file_exists_pdf = exists(path_to_file_pdf)
+
+        #     file_exists_epub = exists(path_to_file_epub)
+
+        #     file_exists_mobi = exists(path_to_file_mobi)
+
+        #     for fname in os.listdir(downloads_path):
+        #         if fname.endswith('.crdownload'):
+        #             try:
+        #                 file_size = os.path.getsize(
+        #                     f"{downloads_path}\\{fname}")
+        #                 # info_text_for_download.config(text= f'{round((file_size / (1024 * 1024)),1)} MB')
+        #                 info_text.config(
+        #                     text=f'Downloading....{round((file_size / (1024 * 1024)),1)} {byte_info_for_pdfdrive.split()[1]} / {byte_info_for_pdfdrive}')
+        #                 time.sleep(0.2)
+        #             except Exception as e:
+        #                 print(e)
+
+        #     if (file_exists_pdf or file_exists_epub or file_exists_mobi):
+
+        #         if(file_exists_epub):
+        #             it_downloaded_epub = True
+
+        #         break
+        # if(it_downloaded_epub):
+        #     epub_to_pdf(title_of_book, title_of_book)
+
+        file_name_pdfdrive = ""       
+        path_to_file = ""         
         while True:
-
-            file_exists_pdf = exists(path_to_file_pdf)
-
-            file_exists_epub = exists(path_to_file_epub)
-
-            file_exists_mobi = exists(path_to_file_mobi)
-
             for fname in os.listdir(downloads_path):
                 if fname.endswith('.crdownload'):
+                    if(file_name_pdfdrive == ""):
+                        print("point 1")
+                        file_name_pdfdrive = fname.split(".crdownload")[0]
+                        path_to_file = f"{downloads_path}\\{file_name_pdfdrive}"
+                        print(path_to_file)
+                        print(file_name_pdfdrive)
                     try:
                         file_size = os.path.getsize(
                             f"{downloads_path}\\{fname}")
-                        # info_text_for_download.config(text= f'{round((file_size / (1024 * 1024)),1)} MB')
                         info_text.config(
                             text=f'Downloading....{round((file_size / (1024 * 1024)),1)} {byte_info_for_pdfdrive.split()[1]} / {byte_info_for_pdfdrive}')
                         time.sleep(0.2)
                     except Exception as e:
                         print(e)
+                elif (fname == file_name_pdfdrive):
+                    print("point 2")
+                    path_to_file = f"{downloads_path}\\{file_name_pdfdrive}" 
+                    print("point 3")
+                    break
+            try:
+                file_exists = exists(path_to_file)
+                print(file_exists)
+                if file_exists:
+                    print("point 4")
+                    break
+            except Exception as e:
+                print(e)
+                pass
 
-            if (file_exists_pdf or file_exists_epub or file_exists_mobi):
 
-                if(file_exists_epub):
-                    it_downloaded_epub = True
-
-                break
-
-        if(it_downloaded_epub):
-            epub_to_pdf(title_of_book, title_of_book)
+        epub_to_pdf_gen()
 
         download_complete_via_selenium = True
 
@@ -985,35 +1041,44 @@ def selenium_headless_downloader(website, download_link, extension):
                 title_of_book)
 
             title_of_book = title_of_book + " (z-lib.org)"
-
-            path_to_file = f"{downloads_path}\\{title_of_book}.{extension}"
-
+            
+            file_name_zlib = ""       
+            path_to_file = ""         
             while True:
-
-                file_exists = exists(path_to_file)
-
                 for fname in os.listdir(downloads_path):
                     if fname.endswith('.crdownload'):
+                        if(file_name_zlib == ""):
+                            print("point 1")
+                            file_name_zlib = fname.split(".crdownload")[0]
+                            path_to_file = f"{downloads_path}\\{file_name_zlib}"
+                            print(path_to_file)
+                            print(file_name_zlib)
                         try:
-                            # print("point 3")
                             file_size = os.path.getsize(
                                 f"{downloads_path}\\{fname}")
                             info_text.config(
                                 text=f'Downloading....{round((file_size / (1024 * 1024)),1)} MB / {str(pdf_size_to_download_for_zlib)}')
-                            # print(f'Downloading....{round((file_size / (1024 * 1024)),0)} MB / {str(pdf_size_to_download_for_zlib)}')
                             time.sleep(0.2)
                         except Exception as e:
-                            # print("point 4")
                             print(e)
-
-                if file_exists:
-                    break
+                    elif (fname == file_name_zlib):
+                        print("point 2")
+                        path_to_file = f"{downloads_path}\\{file_name_zlib}" 
+                        print("point 3")
+                        break
+                try:
+                    file_exists = exists(path_to_file)
+                    print(file_exists)
+                    if file_exists:
+                        print("point 4")
+                        break
+                except Exception as e:
+                    print(e)
+                    pass
 
             download_complete_via_selenium = True
-
-            if(extension == 'epub'):
-
-                epub_to_pdf(title_of_book, title_of_book)
+            
+            epub_to_pdf_gen()
 
             button_1['state'] = "normal"
 
@@ -1312,7 +1377,7 @@ def thread_make():
 def check_internet_connection():
 
     connected_to_internet = False
-
+    
     # IPaddress=socket.gethostbyname(socket.gethostname())
     IPaddress = gethostbyname(gethostname())
     if IPaddress == "127.0.0.1":
